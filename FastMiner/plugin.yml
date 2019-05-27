@@ -1,0 +1,44 @@
+name: FastMiner
+version: 0.1
+main: fastminer.Main
+author: lvxinlei
+description: Fast Miner
+permissions:
+  fastminer.*:
+    description: All accesses of fastminer
+    children:
+      fastminer.use: true
+      fastminer.reload: true
+      fastminer.toggle: true
+      fastminer.enable: true
+      fastminer.disable: true
+      fastminer.fm: true
+      fastminer.help: true
+    default: op
+  fastminer.use:
+    description: Allow someone to use fast miner
+    default: true
+  fastminer.reload: 
+    description: Allow someone to use /fm reload command
+    default: op
+  fastminer.toggle: 
+    description: Allow someone to use /fm toggle command
+    default: true
+  fastminer.enable: 
+    description: Allow someone to use /fm enable command
+    default: true
+  fastminer.disable: 
+    description: Allow someone to use /fm disable command
+    default: true
+  fastminer.fm:
+    description: Allow someone to use /fm command
+    default: true
+  fastminer.help:
+    description: Allow someone to use /fm help command
+    default: true
+commands:
+  fm:
+    description: "You Know"
+    usage: "/fm <ChildCommand>"
+    permission: fastminer.fm
+    permission-message: "No Enough Permission"
