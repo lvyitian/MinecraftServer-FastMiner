@@ -326,77 +326,112 @@ public class Main extends JavaPlugin implements Listener{
 			result=new ItemStack(block,1,data);
 		return result;
 	}
+	public boolean hasLava(Location block,Player player)
+	{
+		if(player.hasPermission("fastminer.lavadetect") && config.lavaDetect)
+		{
+			if(new Location(block.getWorld(),block.getX()+1,block.getY(),block.getZ()).getBlock().getType()==Material.LAVA || new Location(block.getWorld(),block.getX()+1,block.getY(),block.getZ()).getBlock().getType()==Material.STATIONARY_LAVA)
+				return true;
+			if(new Location(block.getWorld(),block.getX(),block.getY()+1,block.getZ()).getBlock().getType()==Material.LAVA || new Location(block.getWorld(),block.getX(),block.getY()+1,block.getZ()).getBlock().getType()==Material.STATIONARY_LAVA)
+				return true;
+			if(new Location(block.getWorld(),block.getX(),block.getY(),block.getZ()+1).getBlock().getType()==Material.LAVA || new Location(block.getWorld(),block.getX(),block.getY(),block.getZ()+1).getBlock().getType()==Material.STATIONARY_LAVA)
+				return true;
+			if(new Location(block.getWorld(),block.getX()-1,block.getY(),block.getZ()).getBlock().getType()==Material.LAVA || new Location(block.getWorld(),block.getX()-1,block.getY(),block.getZ()).getBlock().getType()==Material.STATIONARY_LAVA)
+				return true;
+			if(new Location(block.getWorld(),block.getX(),block.getY()-1,block.getZ()).getBlock().getType()==Material.LAVA || new Location(block.getWorld(),block.getX(),block.getY()-1,block.getZ()).getBlock().getType()==Material.STATIONARY_LAVA)
+				return true;
+			if(new Location(block.getWorld(),block.getX(),block.getY(),block.getZ()-1).getBlock().getType()==Material.LAVA || new Location(block.getWorld(),block.getX(),block.getY(),block.getZ()-1).getBlock().getType()==Material.STATIONARY_LAVA)
+				return true;	
+		}
+		return false;
+	}
 	@SuppressWarnings("deprecation")
 	public void Execute(long depth,Location block,Material type,byte data,ItemStack tools,Player player)
 	{
 		if(depth>=config.MaxDepth)
 			return;
-		if(block.getBlock().getType()==type && block.getBlock().getData()==data)
+		Material originalType=type;
+		if(originalType==Material.GLOWING_REDSTONE_ORE)
+			originalType=Material.REDSTONE_ORE;
+		Material nowType=block.getBlock().getType();
+		if(nowType==Material.GLOWING_REDSTONE_ORE)
+			nowType=Material.REDSTONE_ORE;
+		if(nowType==originalType && block.getBlock().getData()==data)
 		{
 			if(!player.isOnline())
 				return;
-			BlockBreakEvent tempevent=new BlockBreakEvent(block.getBlock(),player);
-			tempevent.setDropItems(true);
-			int exptodrop=0;
-			if(!isOriginal(tools))
+			boolean canbreak=true;
+			if(hasLava(block,player))
 			{
-				if(type==Material.COAL_ORE)
-					exptodrop=new Random(System.nanoTime()).nextInt(2-0)+0;
-				if(type==Material.DIAMOND_ORE || type==Material.EMERALD_ORE)
-					exptodrop=new Random(System.nanoTime()).nextInt(7-3)+3;
-				if(type==Material.LAPIS_ORE || type==Material.QUARTZ_ORE)
-					exptodrop=new Random(System.nanoTime()).nextInt(5-2)+2;
-			    tempevent.setExpToDrop(exptodrop);
-			    IgnoreList.add(tempevent);
-				Bukkit.getPluginManager().callEvent(tempevent);
-				IgnoreList.remove(tempevent);
-				exptodrop=tempevent.getExpToDrop();
-				boolean isdrop=tempevent.isDropItems();
-				int level=getLuckyLevel(tools);
-				if(level==0)
+				if(config.lavaNotify)
+				  player.sendMessage("方块 x="+block.getBlockX()+" y="+block.getBlockY()+" z="+block.getBlockZ()+" 周围有岩浆，已取消破坏事件!");
+				canbreak=false;
+			}
+			Material before=tools.getType();
+			if(canbreak)
+			{
+				BlockBreakEvent tempevent=new BlockBreakEvent(block.getBlock(),player);
+				tempevent.setDropItems(true);
+				int exptodrop=0;
+				if(!isOriginal(tools))
 				{
-					if(isdrop)
-					  block.getBlock().breakNaturally(tools);	
-					else
-					  block.getBlock().setType(Material.AIR);
-				}else {
-					Material temp=block.getBlock().getType();
-					block.getBlock().setType(Material.AIR);
-					if(isdrop)
-					{
-						int count=new Random(System.nanoTime()).nextInt((1+level)-1)+1;
-						((Item)(block.getWorld().spawnEntity(block, EntityType.DROPPED_ITEM))).setItemStack(getLuckyBlockItem(temp,data,count,level));	
-					}
-				}
-				if(exptodrop!=0)
-				{
-					try {
-						((ExperienceOrb)(block.getWorld().spawnEntity(block, EntityType.EXPERIENCE_ORB))).setExperience(exptodrop);
-					}catch(Throwable e) {}
-				}
-				}else {
-					tempevent.setExpToDrop(exptodrop);
+					if(type==Material.COAL_ORE)
+						exptodrop=new Random(System.nanoTime()).nextInt(2-0)+0;
+					if(type==Material.DIAMOND_ORE || type==Material.EMERALD_ORE)
+						exptodrop=new Random(System.nanoTime()).nextInt(7-3)+3;
+					if(type==Material.LAPIS_ORE || type==Material.QUARTZ_ORE)
+						exptodrop=new Random(System.nanoTime()).nextInt(5-2)+2;
+				    tempevent.setExpToDrop(exptodrop);
 				    IgnoreList.add(tempevent);
 					Bukkit.getPluginManager().callEvent(tempevent);
 					IgnoreList.remove(tempevent);
 					exptodrop=tempevent.getExpToDrop();
 					boolean isdrop=tempevent.isDropItems();
-					Material temp=block.getBlock().getType();
-					block.getBlock().setType(Material.AIR);
-					if(isdrop)
-					  ((Item)(block.getWorld().spawnEntity(block, EntityType.DROPPED_ITEM))).setItemStack(new ItemStack(temp,1,data));
+					int level=getLuckyLevel(tools);
+					if(level==0)
+					{
+						if(isdrop)
+						  block.getBlock().breakNaturally(tools);	
+						else
+						  block.getBlock().setType(Material.AIR);
+					}else {
+						Material temp=block.getBlock().getType();
+						block.getBlock().setType(Material.AIR);
+						if(isdrop)
+						{
+							int count=new Random(System.nanoTime()).nextInt((1+level)-1)+1;
+							((Item)(block.getWorld().spawnEntity(block, EntityType.DROPPED_ITEM))).setItemStack(getLuckyBlockItem(temp,data,count,level));	
+						}
+					}
 					if(exptodrop!=0)
 					{
 						try {
 							((ExperienceOrb)(block.getWorld().spawnEntity(block, EntityType.EXPERIENCE_ORB))).setExperience(exptodrop);
 						}catch(Throwable e) {}
 					}
-				}
-				Material before=tools.getType();
-				if(tools.getType().getMaxDurability()>=1)
-				  subtractDurability(tools,player);
-				if(tools.getDurability()>tools.getType().getMaxDurability())
-					tools.subtract();
+					}else {
+						tempevent.setExpToDrop(exptodrop);
+					    IgnoreList.add(tempevent);
+						Bukkit.getPluginManager().callEvent(tempevent);
+						IgnoreList.remove(tempevent);
+						exptodrop=tempevent.getExpToDrop();
+						boolean isdrop=tempevent.isDropItems();
+						Material temp=block.getBlock().getType();
+						block.getBlock().setType(Material.AIR);
+						if(isdrop)
+						  ((Item)(block.getWorld().spawnEntity(block, EntityType.DROPPED_ITEM))).setItemStack(new ItemStack(temp,1,data));
+						if(exptodrop!=0)
+						{
+							try {
+								((ExperienceOrb)(block.getWorld().spawnEntity(block, EntityType.EXPERIENCE_ORB))).setExperience(exptodrop);
+							}catch(Throwable e) {}
+						}
+					}
+					if(tools.getType().getMaxDurability()>=1)
+					  subtractDurability(tools,player);
+					if(tools.getDurability()>tools.getType().getMaxDurability())
+						tools.subtract();	
+			}
 				if(tools.getType()!=Material.AIR || before==Material.AIR)
 					Execute(depth+1,new Location(block.getWorld(),block.getX()+1,block.getY(),block.getZ()),type,data,tools,player);
 				if(tools.getType()!=Material.AIR || before==Material.AIR)	

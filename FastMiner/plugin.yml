@@ -14,9 +14,13 @@ permissions:
       fastminer.disable: true
       fastminer.fm: true
       fastminer.help: true
+      fastminer.lavadetect: true
     default: op
   fastminer.use:
     description: Allow someone to use fast miner
+    default: true
+  fastminer.lavadetect:
+    description: Allow someone to use lava detect
     default: true
   fastminer.reload: 
     description: Allow someone to use /fm reload command
