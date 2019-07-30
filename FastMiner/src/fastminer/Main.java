@@ -11,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
@@ -27,6 +28,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import net.minecraft.server.v1_12_R1.Block;
+import net.minecraft.server.v1_12_R1.BlockLightStone;
+import net.minecraft.server.v1_12_R1.BlockLog1;
+import net.minecraft.server.v1_12_R1.BlockLog2;
+import net.minecraft.server.v1_12_R1.BlockOre;
+import net.minecraft.server.v1_12_R1.BlockPosition;
+import net.minecraft.server.v1_12_R1.BlockRedstoneOre;
 
 public class Main extends JavaPlugin implements Listener{
 	public JsonUtil config=null;
@@ -197,7 +206,7 @@ public class Main extends JavaPlugin implements Listener{
 		  e.getPlayer().sendMessage("连锁挖矿已"+(getEnable(e.getPlayer().getUniqueId().toString())?"开启":"关闭")+"! 请输入/fm toggle来切换开启状态!");
 	}
 	@SuppressWarnings("deprecation")
-	@EventHandler(priority=EventPriority.LOWEST,ignoreCancelled=false)
+	@EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=false)
 	public void onBlockDestroy(BlockBreakEvent e)
 	{
 		if(!e.isCancelled())
@@ -212,7 +221,7 @@ public class Main extends JavaPlugin implements Listener{
 				{
 					if(!(e.getPlayer().getGameMode()==GameMode.CREATIVE))
 					{
-						if(isRightTools(e.getBlock().getType(),e.getPlayer().getItemInHand().getType()))
+						if(isRightTools(e.getBlock().getType(),e.getBlock().getData(),e.getPlayer().getItemInHand().getType()))
 						{
 								e.setCancelled(true);
 								Execute(1,e.getBlock().getLocation(),e.getBlock().getType(),e.getBlock().getData(),e.getPlayer().getItemInHand(),e.getPlayer());
@@ -222,10 +231,11 @@ public class Main extends JavaPlugin implements Listener{
 			}
 		}
 	}
-	public boolean isRightTools(Material block,Material tools)
+	@SuppressWarnings("deprecation")
+	public boolean isRightTools(Material block,int data,Material tools)
 	{
 		boolean result=false;
-		if(block==Material.DIAMOND_ORE || block==Material.EMERALD_ORE || block==Material.REDSTONE_ORE || block==Material.GLOWING_REDSTONE_ORE || block==Material.GOLD_ORE)
+		/*if(block==Material.DIAMOND_ORE || block==Material.EMERALD_ORE || block==Material.REDSTONE_ORE || block==Material.GLOWING_REDSTONE_ORE || block==Material.GOLD_ORE)
 			if(tools==Material.IRON_PICKAXE || tools==Material.DIAMOND_PICKAXE)
 				result=true;
 		if(block==Material.COAL_ORE || block==Material.QUARTZ_ORE)
@@ -235,9 +245,10 @@ public class Main extends JavaPlugin implements Listener{
 			result=true;
 		if(block==Material.IRON_ORE || block==Material.LAPIS_ORE)
 			if(tools==Material.STONE_PICKAXE || tools==Material.IRON_PICKAXE|| tools==Material.DIAMOND_PICKAXE)
+				result=true;*/
+		if(Block.getById(block.getId()).fromLegacyData(data).getBlock() instanceof BlockOre || Block.getById(block.getId()).fromLegacyData(data).getBlock() instanceof BlockRedstoneOre || Block.getById(block.getId()).fromLegacyData(data).getBlock() instanceof BlockLog1 || Block.getById(block.getId()).fromLegacyData(data).getBlock() instanceof BlockLog2 || Block.getById(block.getId()).fromLegacyData(data).getBlock() instanceof BlockLightStone)
+			if(Block.getById(block.getId()).fromLegacyData(data).getBlock().getBlockData().getMaterial().isAlwaysDestroyable() || net.minecraft.server.v1_12_R1.Item.getById(tools.getId()).canDestroySpecialBlock(Block.getById(block.getId()).fromLegacyData(data)))
 				result=true;
-		if(block==Material.GLOWSTONE)
-			result=true;
 		return result;
 	}
 	public void subtractDurability(ItemStack tools,Player player)
@@ -253,7 +264,7 @@ public class Main extends JavaPlugin implements Listener{
 				break;
 			}
 		}
-		int temp=new Random(System.nanoTime()).nextInt(100-1)+1;
+		int temp=new Random(System.nanoTime()).nextInt(100)+1;
 		if(temp<=(100/(level+1)))
 		{
 			int damage=1;
@@ -274,7 +285,7 @@ public class Main extends JavaPlugin implements Listener{
 		}
 		return false;
 	}
-	public int getLuckyCount(Material type,int level)
+	/*public int getLuckyCount(Material type,int level)
 	{
 		Random temp=new Random(System.nanoTime());
 		int i = temp.nextInt(level + 2) - 1;
@@ -285,11 +296,11 @@ public class Main extends JavaPlugin implements Listener{
         }
 
         return this.getCount(type,temp) * (i + 1);
-	}
-	public int getCount(Material type,Random temp)
+	}*/
+	/*public int getCount(Material type,Random temp)
 	{
 		return (type==Material.LAPIS_ORE)?4+temp.nextInt(5):1;
-	}
+	}*/
 	public int getLuckyLevel(ItemStack tools)
 	{
 		int result=0;
@@ -303,7 +314,20 @@ public class Main extends JavaPlugin implements Listener{
 		}
 		return result;
 	}
-	public ItemStack getLuckyBlockItem(Material block,byte data,int count,int level)
+	public int getOriginalLevel(ItemStack tools)
+	{
+		int result=0;
+		for(Enchantment i : tools.getEnchantments().keySet())
+		{
+			if(i.getName().equals(Enchantment.SILK_TOUCH.getName()))
+			{
+				result=tools.getEnchantmentLevel(i);
+				break;
+			}
+		}
+		return result;
+	}
+	/*public ItemStack getLuckyBlockItem(Material block,byte data,int count,int level)
 	{
 		ItemStack result=null;
 		if(block==Material.COAL_ORE)
@@ -325,7 +349,7 @@ public class Main extends JavaPlugin implements Listener{
 		if(block==Material.LOG || block==Material.LOG_2)
 			result=new ItemStack(block,1,data);
 		return result;
-	}
+	}*/
 	public boolean hasLava(Location block,Player player)
 	{
 		if(player.hasPermission("fastminer.lavadetect") && config.lavaDetect)
@@ -361,48 +385,55 @@ public class Main extends JavaPlugin implements Listener{
 			if(!player.isOnline())
 				return;
 			boolean canbreak=true;
+			boolean isdrop=Boolean.valueOf(block.getWorld().getGameRuleValue("doTileDrops"));
+			int exptodrop=Boolean.valueOf(block.getWorld().getGameRuleValue("doTileDrops"))?(!isOriginal(tools)?Block.getById(type.getId()).getExpDrop(((CraftWorld)block.getWorld()).getHandle(), Block.getById(type.getId()).fromLegacyData(data),getOriginalLevel(tools)):0):0;
 			if(hasLava(block,player))
 			{
 				if(config.lavaNotify)
 				  player.sendMessage("方块 x="+block.getBlockX()+" y="+block.getBlockY()+" z="+block.getBlockZ()+" 周围有岩浆，已取消破坏事件!");
 				canbreak=false;
+			}else {
+				BlockBreakEvent tempevent=new BlockBreakEvent(block.getBlock(),player);
+				tempevent.setDropItems(isdrop);
+				tempevent.setExpToDrop(exptodrop);
+			    IgnoreList.add(tempevent);
+				Bukkit.getPluginManager().callEvent(tempevent);
+				IgnoreList.remove(tempevent);
+				exptodrop=tempevent.getExpToDrop();
+				isdrop=tempevent.isDropItems();
+				canbreak=!tempevent.isCancelled();
 			}
 			Material before=tools.getType();
 			if(canbreak)
 			{
-				BlockBreakEvent tempevent=new BlockBreakEvent(block.getBlock(),player);
-				tempevent.setDropItems(true);
-				int exptodrop=0;
 				if(!isOriginal(tools))
 				{
-					if(type==Material.COAL_ORE)
+					/*if(type==Material.COAL_ORE)
 						exptodrop=new Random(System.nanoTime()).nextInt(2-0)+0;
 					if(type==Material.DIAMOND_ORE || type==Material.EMERALD_ORE)
 						exptodrop=new Random(System.nanoTime()).nextInt(7-3)+3;
 					if(type==Material.LAPIS_ORE || type==Material.QUARTZ_ORE)
-						exptodrop=new Random(System.nanoTime()).nextInt(5-2)+2;
-				    tempevent.setExpToDrop(exptodrop);
-				    IgnoreList.add(tempevent);
-					Bukkit.getPluginManager().callEvent(tempevent);
-					IgnoreList.remove(tempevent);
-					exptodrop=tempevent.getExpToDrop();
-					boolean isdrop=tempevent.isDropItems();
-					int level=getLuckyLevel(tools);
+						exptodrop=new Random(System.nanoTime()).nextInt(5-2)+2;*/
+					/*int level=getLuckyLevel(tools);
 					if(level==0)
 					{
 						if(isdrop)
 						  block.getBlock().breakNaturally(tools);	
 						else
 						  block.getBlock().setType(Material.AIR);
-					}else {
-						Material temp=block.getBlock().getType();
-						block.getBlock().setType(Material.AIR);
+					}else {*/
+						//Material temp=block.getBlock().getType();
 						if(isdrop)
 						{
-							int count=new Random(System.nanoTime()).nextInt((1+level)-1)+1;
-							((Item)(block.getWorld().spawnEntity(block, EntityType.DROPPED_ITEM))).setItemStack(getLuckyBlockItem(temp,data,count,level));	
+							/*int count=new Random(System.nanoTime()).nextInt((1+level)-1)+1;
+							((Item)(block.getWorld().spawnEntity(block, EntityType.DROPPED_ITEM))).setItemStack(getLuckyBlockItem(temp,data,count,level));	*/
+							boolean origr=Boolean.valueOf(block.getWorld().getGameRuleValue("doTileDrops"));
+							block.getWorld().setGameRuleValue("doTileDrops", "true");
+							Block.getById(type.getId()).dropNaturally(((CraftWorld)block.getWorld()).getHandle(), new BlockPosition(block.getX(),block.getY(),block.getZ()), Block.getById(type.getId()).fromLegacyData(data), 1, getLuckyLevel(tools));
+							block.getWorld().setGameRuleValue("doTileDrops", String.valueOf(origr));
 						}
-					}
+						block.getBlock().setType(Material.AIR);
+					//}
 					if(exptodrop!=0)
 					{
 						try {
@@ -410,16 +441,10 @@ public class Main extends JavaPlugin implements Listener{
 						}catch(Throwable e) {}
 					}
 					}else {
-						tempevent.setExpToDrop(exptodrop);
-					    IgnoreList.add(tempevent);
-						Bukkit.getPluginManager().callEvent(tempevent);
-						IgnoreList.remove(tempevent);
-						exptodrop=tempevent.getExpToDrop();
-						boolean isdrop=tempevent.isDropItems();
-						Material temp=block.getBlock().getType();
-						block.getBlock().setType(Material.AIR);
+						//Material temp=block.getBlock().getType();
 						if(isdrop)
-						  ((Item)(block.getWorld().spawnEntity(block, EntityType.DROPPED_ITEM))).setItemStack(new ItemStack(temp,1,data));
+						  ((Item)(block.getWorld().spawnEntity(block, EntityType.DROPPED_ITEM))).setItemStack(new ItemStack(block.getBlock().getType(),1,data));
+						block.getBlock().setType(Material.AIR);
 						if(exptodrop!=0)
 						{
 							try {
@@ -431,7 +456,7 @@ public class Main extends JavaPlugin implements Listener{
 					  subtractDurability(tools,player);
 					if(tools.getDurability()>tools.getType().getMaxDurability())
 						tools.subtract();	
-			}
+			        }
 				if(tools.getType()!=Material.AIR || before==Material.AIR)
 					Execute(depth+1,new Location(block.getWorld(),block.getX()+1,block.getY(),block.getZ()),type,data,tools,player);
 				if(tools.getType()!=Material.AIR || before==Material.AIR)	

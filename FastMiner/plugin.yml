@@ -1,5 +1,5 @@
 name: FastMiner
-version: 0.1
+version: 0.7
 main: fastminer.Main
 author: lvxinlei
 description: Fast Miner
