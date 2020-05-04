@@ -1,8 +1,9 @@
 name: FastMiner
-version: 0.7
+version: 0.8
 main: fastminer.Main
 author: lvxinlei
 description: Fast Miner
+soft-depend: [mcMMO]
 permissions:
   fastminer.*:
     description: All accesses of fastminer

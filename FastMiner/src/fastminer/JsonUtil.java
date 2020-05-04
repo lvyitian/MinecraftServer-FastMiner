@@ -1,15 +1,25 @@
+
 package fastminer;
 
-import java.util.ArrayList;
+import java.util.Vector;
 
-public class JsonUtil {
-  public long MaxDepth=15;
-  public boolean NotifyOnPlayerJoin=true;
-  public boolean lavaDetect=true;
-  public boolean lavaNotify=true;
-  public ArrayList<EnableState> Enable=new ArrayList<EnableState>();
-  public class EnableState{
-	  public String UUID="";
-	  public boolean enabled=false;
+public class JsonUtil
+{
+  public long maxDepth = 15;
+  public boolean notifyOnPlayerJoin = true;
+  public boolean lavaDetect = true;
+  public boolean lavaNotify = true;
+  public Vector<EnableState> enable = new Vector<>();
+  public Vector<BlockType> extraBlockType = new Vector<>();
+  public static class BlockType{
+    public String namespace;
+    public String name;
+    public int damage;
+  }
+  public boolean saveState=true;
+  public static class EnableState
+  {
+    public String uuid = "";
+    public boolean enabled;
   }
 }
