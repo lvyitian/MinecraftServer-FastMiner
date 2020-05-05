@@ -32,6 +32,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.gmail.nossr50.datatypes.skills.PrimarySkillType;
 import com.gmail.nossr50.datatypes.skills.SuperAbilityType;
+import com.gmail.nossr50.events.fake.FakeBlockBreakEvent;
 import com.gmail.nossr50.events.skills.abilities.McMMOPlayerAbilityActivateEvent;
 import com.gmail.nossr50.events.skills.abilities.McMMOPlayerAbilityDeactivateEvent;
 import com.google.gson.Gson;
@@ -94,13 +95,22 @@ public class Main extends JavaPlugin implements Listener
         }, this);
         Bukkit.getPluginManager().registerEvent(McMMOPlayerAbilityDeactivateEvent.class, new Listener()
         {
-        }, EventPriority.MONITOR, (e, l) ->
+        }, EventPriority.HIGHEST, (e, l) ->
         {
           final McMMOPlayerAbilityDeactivateEvent e2 = (McMMOPlayerAbilityDeactivateEvent) e;
           if ((e2.getAbility() == SuperAbilityType.BLAST_MINING) || (e2.getSkill() == PrimarySkillType.MINING)) {
             synchronized (this.lock) {
               this.ignorePlayers.remove(e2.getPlayer().getUniqueId());
             }
+          }
+        }, this);
+        Bukkit.getPluginManager().registerEvent(FakeBlockBreakEvent.class, new Listener()
+        {
+        }, EventPriority.HIGHEST, (e, l) ->
+        {
+          FakeBlockBreakEvent e2=(FakeBlockBreakEvent)e;
+          if (this.isEnable(e2.getPlayer().getUniqueId().toString())) {
+            e2.setCancelled(true);
           }
         }, this);
       }
@@ -283,7 +293,7 @@ public class Main extends JavaPlugin implements Listener
     for (final BlockType i : this.config.extraBlockType) {
       if (Block.getById(block.getId()).fromLegacyData(data).getBlock().getClass()
           .equals(Block.getByName(i.namespace + ":" + i.name).fromLegacyData(i.damage).getBlock().getClass())) {
-        if (data == i.damage) {
+        if (i.damage<0 || data == i.damage) {
           return true;
         }
       }
