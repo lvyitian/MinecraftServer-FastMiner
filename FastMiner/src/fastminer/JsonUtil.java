@@ -22,4 +22,5 @@ public class JsonUtil
     public String uuid = "";
     public boolean enabled;
   }
+  public boolean disablemcMMOCompatiblity;
 }

@@ -53,7 +53,7 @@ public class Main extends JavaPlugin implements Listener
   public String configFileLocation = ".\\plugins\\FastMiner\\config.json";
   public Vector<String> childCommandList = new Vector<>();
   public Vector<BlockBreakEvent> ignoreList = new Vector<>();
-  public Vector<FakeBlockBreakEvent> ignoreList2 = new Vector<>();
+  // public Vector<FakeBlockBreakEvent> ignoreList2 = new Vector<>();
   public Vector<UUID> ignorePlayers = new Vector<>();
   public final Object lock = new Object();
 
@@ -82,10 +82,10 @@ public class Main extends JavaPlugin implements Listener
         this.config = new JsonUtil();
         this.saveMyConfig();
       }
-      if (Bukkit.getPluginManager().getPlugin("mcMMO") != null) {
+      if ((Bukkit.getPluginManager().getPlugin("mcMMO") != null) && !this.config.disablemcMMOCompatiblity) {
         Bukkit.getPluginManager().registerEvent(McMMOPlayerAbilityActivateEvent.class, new Listener()
         {
-        }, EventPriority.MONITOR, (e, l) ->
+        }, EventPriority.LOWEST, (e, l) ->
         {
           final McMMOPlayerAbilityActivateEvent e2 = (McMMOPlayerAbilityActivateEvent) e;
           if ((e2.getAbility() == SuperAbilityType.BLAST_MINING) || (e2.getSkill() == PrimarySkillType.MINING)) {
@@ -96,7 +96,7 @@ public class Main extends JavaPlugin implements Listener
         }, this);
         Bukkit.getPluginManager().registerEvent(McMMOPlayerAbilityDeactivateEvent.class, new Listener()
         {
-        }, EventPriority.HIGHEST, (e, l) ->
+        }, EventPriority.MONITOR, (e, l) ->
         {
           final McMMOPlayerAbilityDeactivateEvent e2 = (McMMOPlayerAbilityDeactivateEvent) e;
           if ((e2.getAbility() == SuperAbilityType.BLAST_MINING) || (e2.getSkill() == PrimarySkillType.MINING)) {
@@ -112,7 +112,8 @@ public class Main extends JavaPlugin implements Listener
           if (e instanceof FakeBlockBreakEvent) {
             final FakeBlockBreakEvent e2 = (FakeBlockBreakEvent) e;
             if (this.isEnable(e2.getPlayer().getUniqueId().toString())) {
-              this.ignoreList2.add(e2);
+              // this.ignoreList2.add(e2);
+              e2.getPlayer().sendMessage("请先禁用fastminer!以便你可以通过技能破坏方块");
               e2.setCancelled(true);
             }
           }
@@ -264,16 +265,13 @@ public class Main extends JavaPlugin implements Listener
   }
 
   @SuppressWarnings("deprecation")
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
   public void onBlockDestroy(final BlockBreakEvent e)
   {
-    try {
-      if (this.ignoreList2.contains(e)) {
-        return;
-      }
-    } finally {
-      this.ignoreList2.clear();
-    }
+    /*
+     * try { if (this.ignoreList2.contains(e)) { return; } } finally {
+     * this.ignoreList2.clear(); }
+     */
     if (!e.isCancelled()) {
       if (this.ignoreList.contains(e)) {
         return;
@@ -289,9 +287,9 @@ public class Main extends JavaPlugin implements Listener
           if (ignore) {
             return;
           }
-          e.setCancelled(true);
+          // e.setCancelled(true);
           this.execute(1, e.getBlock().getLocation(), e.getBlock().getType(), e.getBlock().getData(),
-              e.getPlayer().getItemInHand(), e.getPlayer());
+              e.getPlayer().getItemInHand(), e.getPlayer(), true);
 
         }
       }
@@ -477,7 +475,7 @@ public class Main extends JavaPlugin implements Listener
 
   @SuppressWarnings("deprecation")
   public void execute(final long depth, final Location block, final Material type, final byte data,
-      final ItemStack tools, final Player player)
+      final ItemStack tools, final Player player, final boolean nc)
   {
     if (depth >= this.config.maxDepth) {
       return;
@@ -510,15 +508,17 @@ public class Main extends JavaPlugin implements Listener
         final BlockBreakEvent tempevent = new BlockBreakEvent(block.getBlock(), player);
         tempevent.setDropItems(isdrop);
         tempevent.setExpToDrop(exptodrop);
-        this.ignoreList.add(tempevent);
-        Bukkit.getPluginManager().callEvent(tempevent);
-        this.ignoreList.remove(tempevent);
+        if (!nc) {
+          this.ignoreList.add(tempevent);
+          Bukkit.getPluginManager().callEvent(tempevent);
+          this.ignoreList.remove(tempevent);
+        }
         exptodrop = tempevent.getExpToDrop();
         isdrop = tempevent.isDropItems();
         canbreak = !tempevent.isCancelled();
       }
       final Material before = tools.getType();
-      if (canbreak) {
+      if (canbreak && !nc) {
         if (!Main.isOriginal(tools)) {
           /*
            * if(type==Material.COAL_ORE) exptodrop=new
@@ -583,27 +583,27 @@ public class Main extends JavaPlugin implements Listener
       }
       if ((tools.getType() != Material.AIR) || (before == Material.AIR)) {
         this.execute(depth + 1, new Location(block.getWorld(), block.getX() + 1, block.getY(), block.getZ()), type,
-            data, tools, player);
+            data, tools, player, false);
       }
       if ((tools.getType() != Material.AIR) || (before == Material.AIR)) {
         this.execute(depth + 1, new Location(block.getWorld(), block.getX() - 1, block.getY(), block.getZ()), type,
-            data, tools, player);
+            data, tools, player, false);
       }
       if ((tools.getType() != Material.AIR) || (before == Material.AIR)) {
         this.execute(depth + 1, new Location(block.getWorld(), block.getX(), block.getY() + 1, block.getZ()), type,
-            data, tools, player);
+            data, tools, player, false);
       }
       if ((tools.getType() != Material.AIR) || (before == Material.AIR)) {
         this.execute(depth + 1, new Location(block.getWorld(), block.getX(), block.getY() - 1, block.getZ()), type,
-            data, tools, player);
+            data, tools, player, false);
       }
       if ((tools.getType() != Material.AIR) || (before == Material.AIR)) {
         this.execute(depth + 1, new Location(block.getWorld(), block.getX(), block.getY(), block.getZ() + 1), type,
-            data, tools, player);
+            data, tools, player, false);
       }
       if ((tools.getType() != Material.AIR) || (before == Material.AIR)) {
         this.execute(depth + 1, new Location(block.getWorld(), block.getX(), block.getY(), block.getZ() - 1), type,
-            data, tools, player);
+            data, tools, player, false);
       }
     }
   }
