@@ -53,6 +53,7 @@ public class Main extends JavaPlugin implements Listener
   public String configFileLocation = ".\\plugins\\FastMiner\\config.json";
   public Vector<String> childCommandList = new Vector<>();
   public Vector<BlockBreakEvent> ignoreList = new Vector<>();
+  public Vector<FakeBlockBreakEvent> ignoreList2 = new Vector<>();
   public Vector<UUID> ignorePlayers = new Vector<>();
   public final Object lock = new Object();
 
@@ -108,9 +109,12 @@ public class Main extends JavaPlugin implements Listener
         {
         }, EventPriority.HIGHEST, (e, l) ->
         {
-          FakeBlockBreakEvent e2=(FakeBlockBreakEvent)e;
-          if (this.isEnable(e2.getPlayer().getUniqueId().toString())) {
-            e2.setCancelled(true);
+          if (e instanceof FakeBlockBreakEvent) {
+            final FakeBlockBreakEvent e2 = (FakeBlockBreakEvent) e;
+            if (this.isEnable(e2.getPlayer().getUniqueId().toString())) {
+              this.ignoreList2.add(e2);
+              e2.setCancelled(true);
+            }
           }
         }, this);
       }
@@ -260,9 +264,16 @@ public class Main extends JavaPlugin implements Listener
   }
 
   @SuppressWarnings("deprecation")
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
   public void onBlockDestroy(final BlockBreakEvent e)
   {
+    try {
+      if (this.ignoreList2.contains(e)) {
+        return;
+      }
+    } finally {
+      this.ignoreList2.clear();
+    }
     if (!e.isCancelled()) {
       if (this.ignoreList.contains(e)) {
         return;
@@ -291,9 +302,9 @@ public class Main extends JavaPlugin implements Listener
   public boolean isCustomBlock(final Material block, final int data)
   {
     for (final BlockType i : this.config.extraBlockType) {
-      if (Block.getById(block.getId()).fromLegacyData(data).getBlock().getClass()
-          .equals(Block.getByName(i.namespace + ":" + i.name).fromLegacyData(i.damage).getBlock().getClass())) {
-        if (i.damage<0 || data == i.damage) {
+      if (Block.getById(block.getId()).fromLegacyData(i.damage >= 0 ? data : 0).getBlock().getClass().equals(Block
+          .getByName(i.namespace + ":" + i.name).fromLegacyData(i.damage >= 0 ? i.damage : 0).getBlock().getClass())) {
+        if ((i.damage < 0) || (data == i.damage)) {
           return true;
         }
       }
