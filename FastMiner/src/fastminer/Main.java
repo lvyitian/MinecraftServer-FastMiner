@@ -263,8 +263,9 @@ public class Main extends JavaPlugin implements Listener
           "连锁挖矿已" + (this.isEnable(e.getPlayer().getUniqueId().toString()) ? "开启" : "关闭") + "! 请输入/fm toggle来切换开启状态!");
     }
   }
+
   @SuppressWarnings("deprecation")
-  @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=false)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
   public void onBlockDestroyHighest(final BlockBreakEvent e)
   {
     if (!e.isCancelled()) {
@@ -282,13 +283,12 @@ public class Main extends JavaPlugin implements Listener
           if (ignore) {
             return;
           }
-          if(this.hasLava(e.getBlock().getLocation(), e.getPlayer()))
-          {
+          if (this.hasLava(e.getBlock().getLocation(), e.getPlayer())) {
             if (this.config.lavaNotify) {
-              Player player=e.getPlayer();
-              Location block=e.getBlock().getLocation();
-              player.sendMessage(
-                  "方块 x=" + block.getBlockX() + " y=" + block.getBlockY() + " z=" + block.getBlockZ() + " 周围有岩浆，已取消破坏事件!");
+              final Player player = e.getPlayer();
+              final Location block = e.getBlock().getLocation();
+              player.sendMessage("方块 x=" + block.getBlockX() + " y=" + block.getBlockY() + " z=" + block.getBlockZ()
+                  + " 周围有岩浆，已取消破坏事件!");
             }
             e.setCancelled(true);
             return;
@@ -297,6 +297,7 @@ public class Main extends JavaPlugin implements Listener
       }
     }
   }
+
   @SuppressWarnings("deprecation")
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
   public void onBlockDestroy(final BlockBreakEvent e)
@@ -531,7 +532,7 @@ public class Main extends JavaPlugin implements Listener
           ? Block.getById(type.getId()).getExpDrop(((CraftWorld) block.getWorld()).getHandle(),
               Block.getById(type.getId()).fromLegacyData(data), Main.getOriginalLevel(tools))
           : 0) : 0;
-      if (!nc&&this.hasLava(block, player)) {
+      if (!nc && this.hasLava(block, player)) {
         if (this.config.lavaNotify) {
           player.sendMessage(
               "方块 x=" + block.getBlockX() + " y=" + block.getBlockY() + " z=" + block.getBlockZ() + " 周围有岩浆，已取消破坏事件!");
