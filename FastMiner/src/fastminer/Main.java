@@ -284,10 +284,12 @@ public class Main extends JavaPlugin implements Listener
           }
           if(this.hasLava(e.getBlock().getLocation(), e.getPlayer()))
           {
-            Player player=e.getPlayer();
-            Location block=e.getBlock().getLocation();
-            player.sendMessage(
-                "方块 x=" + block.getBlockX() + " y=" + block.getBlockY() + " z=" + block.getBlockZ() + " 周围有岩浆，已取消破坏事件!");
+            if (this.config.lavaNotify) {
+              Player player=e.getPlayer();
+              Location block=e.getBlock().getLocation();
+              player.sendMessage(
+                  "方块 x=" + block.getBlockX() + " y=" + block.getBlockY() + " z=" + block.getBlockZ() + " 周围有岩浆，已取消破坏事件!");
+            }
             e.setCancelled(true);
             return;
           }
