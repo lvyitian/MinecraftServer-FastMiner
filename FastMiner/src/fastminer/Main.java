@@ -50,7 +50,7 @@ import net.minecraft.server.v1_12_R1.BlockRedstoneOre;
 public class Main extends JavaPlugin implements Listener
 {
   public JsonUtil config;
-  public String configFileLocation = ".\\plugins\\FastMiner\\config.json";
+  public String configFileLocation = "./plugins/FastMiner/config.json";
   public Vector<String> childCommandList = new Vector<>();
   public Vector<BlockBreakEvent> ignoreList = new Vector<>();
   // public Vector<FakeBlockBreakEvent> ignoreList2 = new Vector<>();
