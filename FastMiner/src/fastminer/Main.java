@@ -31,11 +31,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.gmail.nossr50.datatypes.skills.PrimarySkillType;
-import com.gmail.nossr50.datatypes.skills.SuperAbilityType;
+//import com.gmail.nossr50.datatypes.skills.SuperAbilityType;
 import com.gmail.nossr50.events.experience.McMMOPlayerExperienceEvent;
-import com.gmail.nossr50.events.fake.FakeBlockBreakEvent;
-import com.gmail.nossr50.events.skills.abilities.McMMOPlayerAbilityActivateEvent;
-import com.gmail.nossr50.events.skills.abilities.McMMOPlayerAbilityDeactivateEvent;
+//import com.gmail.nossr50.events.fake.FakeBlockBreakEvent;
+//import com.gmail.nossr50.events.skills.abilities.McMMOPlayerAbilityActivateEvent;
+//import com.gmail.nossr50.events.skills.abilities.McMMOPlayerAbilityDeactivateEvent;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -85,9 +85,9 @@ public class Main extends JavaPlugin implements Listener
         this.saveMyConfig();
       }
       if ((Bukkit.getPluginManager().getPlugin("mcMMO") != null) && !this.config.disablemcMMOCompatiblity) {
-        Bukkit.getPluginManager().registerEvent(McMMOPlayerAbilityActivateEvent.class, new Listener()
+        /*Bukkit.getPluginManager().registerEvent(McMMOPlayerAbilityActivateEvent.class, new Listener()
         {
-        }, EventPriority.LOWEST, (e, l) ->
+        }, EventPriority.LOWEST, (l, e) ->
         {
           if (e instanceof McMMOPlayerAbilityActivateEvent) {
             final McMMOPlayerAbilityActivateEvent e2 = (McMMOPlayerAbilityActivateEvent) e;
@@ -100,7 +100,7 @@ public class Main extends JavaPlugin implements Listener
         }, this);
         Bukkit.getPluginManager().registerEvent(McMMOPlayerAbilityDeactivateEvent.class, new Listener()
         {
-        }, EventPriority.MONITOR, (e, l) ->
+        }, EventPriority.MONITOR, (l, e) ->
         {
           if (e instanceof McMMOPlayerAbilityDeactivateEvent) {
             final McMMOPlayerAbilityDeactivateEvent e2 = (McMMOPlayerAbilityDeactivateEvent) e;
@@ -113,7 +113,7 @@ public class Main extends JavaPlugin implements Listener
         }, this);
         Bukkit.getPluginManager().registerEvent(FakeBlockBreakEvent.class, new Listener()
         {
-        }, EventPriority.HIGHEST, (e, l) ->
+        }, EventPriority.HIGHEST, (l, e) ->
         {
           if (e instanceof FakeBlockBreakEvent) {
             final FakeBlockBreakEvent e2 = (FakeBlockBreakEvent) e;
@@ -123,10 +123,10 @@ public class Main extends JavaPlugin implements Listener
               e2.setCancelled(true);
             }
           }
-        }, this);
+        }, this);*/
         Bukkit.getPluginManager().registerEvent(McMMOPlayerExperienceEvent.class, new Listener()
         {
-        }, EventPriority.HIGHEST, (e, l) ->
+        }, EventPriority.HIGHEST, (l, e) ->
         {
           if (e instanceof McMMOPlayerExperienceEvent) {
             final McMMOPlayerExperienceEvent e2 = (McMMOPlayerExperienceEvent) e;
