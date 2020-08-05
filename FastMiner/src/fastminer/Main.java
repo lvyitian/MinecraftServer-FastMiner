@@ -30,9 +30,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.gmail.nossr50.datatypes.skills.PrimarySkillType;
-//import com.gmail.nossr50.datatypes.skills.SuperAbilityType;
-import com.gmail.nossr50.events.experience.McMMOPlayerExperienceEvent;
 //import com.gmail.nossr50.events.fake.FakeBlockBreakEvent;
 //import com.gmail.nossr50.events.skills.abilities.McMMOPlayerAbilityActivateEvent;
 //import com.gmail.nossr50.events.skills.abilities.McMMOPlayerAbilityDeactivateEvent;
@@ -72,7 +69,7 @@ public class Main extends JavaPlugin implements Listener
     }
   }
 
-  @SuppressWarnings("deprecation")
+  // @SuppressWarnings("deprecation")
   @Override
   public void onEnable()
   {
@@ -84,61 +81,41 @@ public class Main extends JavaPlugin implements Listener
         this.config = new JsonUtil();
         this.saveMyConfig();
       }
-      if ((Bukkit.getPluginManager().getPlugin("mcMMO") != null) && !this.config.disablemcMMOCompatiblity) {
-        /*Bukkit.getPluginManager().registerEvent(McMMOPlayerAbilityActivateEvent.class, new Listener()
-        {
-        }, EventPriority.LOWEST, (l, e) ->
-        {
-          if (e instanceof McMMOPlayerAbilityActivateEvent) {
-            final McMMOPlayerAbilityActivateEvent e2 = (McMMOPlayerAbilityActivateEvent) e;
-            if ((e2.getAbility() == SuperAbilityType.BLAST_MINING) || (e2.getSkill() == PrimarySkillType.MINING)) {
-              synchronized (this.lock) {
-                this.ignorePlayers.add(e2.getPlayer().getUniqueId());
-              }
-            }
-          }
-        }, this);
-        Bukkit.getPluginManager().registerEvent(McMMOPlayerAbilityDeactivateEvent.class, new Listener()
-        {
-        }, EventPriority.MONITOR, (l, e) ->
-        {
-          if (e instanceof McMMOPlayerAbilityDeactivateEvent) {
-            final McMMOPlayerAbilityDeactivateEvent e2 = (McMMOPlayerAbilityDeactivateEvent) e;
-            if ((e2.getAbility() == SuperAbilityType.BLAST_MINING) || (e2.getSkill() == PrimarySkillType.MINING)) {
-              synchronized (this.lock) {
-                this.ignorePlayers.remove(e2.getPlayer().getUniqueId());
-              }
-            }
-          }
-        }, this);
-        Bukkit.getPluginManager().registerEvent(FakeBlockBreakEvent.class, new Listener()
-        {
-        }, EventPriority.HIGHEST, (l, e) ->
-        {
-          if (e instanceof FakeBlockBreakEvent) {
-            final FakeBlockBreakEvent e2 = (FakeBlockBreakEvent) e;
-            if (this.isEnable(e2.getPlayer().getUniqueId().toString())) {
-              // this.ignoreList2.add(e2);
-              e2.getPlayer().sendMessage("请先禁用fastminer!以便你可以通过技能破坏方块");
-              e2.setCancelled(true);
-            }
-          }
-        }, this);*/
-        Bukkit.getPluginManager().registerEvent(McMMOPlayerExperienceEvent.class, new Listener()
-        {
-        }, EventPriority.HIGHEST, (l, e) ->
-        {
-          if (e instanceof McMMOPlayerExperienceEvent) {
-            final McMMOPlayerExperienceEvent e2 = (McMMOPlayerExperienceEvent) e;
-            if (Objects.equals(e2.getSkill(), PrimarySkillType.MINING)) {
-              if (this.isEnable(e2.getPlayer().getUniqueId().toString())
-                  && Main.isOriginal(e2.getPlayer().getItemInHand())) {
-                e2.setCancelled(true);
-              }
-            }
-          }
-        }, this);
-      }
+      /*
+       * if ((Bukkit.getPluginManager().getPlugin("mcMMO") != null) &&
+       * !this.config.disablemcMMOCompatiblity) {
+       * /*Bukkit.getPluginManager().registerEvent(McMMOPlayerAbilityActivateEvent.
+       * class, new Listener() { }, EventPriority.LOWEST, (l, e) -> { if (e instanceof
+       * McMMOPlayerAbilityActivateEvent) { final McMMOPlayerAbilityActivateEvent e2 =
+       * (McMMOPlayerAbilityActivateEvent) e; if ((e2.getAbility() ==
+       * SuperAbilityType.BLAST_MINING) || (e2.getSkill() == PrimarySkillType.MINING))
+       * { synchronized (this.lock) {
+       * this.ignorePlayers.add(e2.getPlayer().getUniqueId()); } } } }, this);
+       * Bukkit.getPluginManager().registerEvent(McMMOPlayerAbilityDeactivateEvent.
+       * class, new Listener() { }, EventPriority.MONITOR, (l, e) -> { if (e
+       * instanceof McMMOPlayerAbilityDeactivateEvent) { final
+       * McMMOPlayerAbilityDeactivateEvent e2 = (McMMOPlayerAbilityDeactivateEvent) e;
+       * if ((e2.getAbility() == SuperAbilityType.BLAST_MINING) || (e2.getSkill() ==
+       * PrimarySkillType.MINING)) { synchronized (this.lock) {
+       * this.ignorePlayers.remove(e2.getPlayer().getUniqueId()); } } } }, this);
+       * Bukkit.getPluginManager().registerEvent(FakeBlockBreakEvent.class, new
+       * Listener() { }, EventPriority.HIGHEST, (l, e) -> { if (e instanceof
+       * FakeBlockBreakEvent) { final FakeBlockBreakEvent e2 = (FakeBlockBreakEvent)
+       * e; if (this.isEnable(e2.getPlayer().getUniqueId().toString())) { //
+       * this.ignoreList2.add(e2);
+       * e2.getPlayer().sendMessage("请先禁用fastminer!以便你可以通过技能破坏方块");
+       * e2.setCancelled(true); } } }, this);
+       */
+      /*
+       * Bukkit.getPluginManager().registerEvent(McMMOPlayerExperienceEvent.class, new
+       * Listener() { }, EventPriority.HIGHEST, (l, e) -> { if (e instanceof
+       * McMMOPlayerExperienceEvent) { final McMMOPlayerExperienceEvent e2 =
+       * (McMMOPlayerExperienceEvent) e; if (Objects.equals(e2.getSkill(),
+       * PrimarySkillType.MINING)) { if
+       * (this.isEnable(e2.getPlayer().getUniqueId().toString()) &&
+       * Main.isOriginal(e2.getPlayer().getItemInHand())) { e2.setCancelled(true); } }
+       * } }, this); }
+       */
       Bukkit.getPluginManager().registerEvents(this, this);
     } catch (final Throwable e) {
       e.printStackTrace();
@@ -288,6 +265,11 @@ public class Main extends JavaPlugin implements Listener
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
   public void onBlockDestroyHighest(final BlockBreakEvent e)
   {
+    if (!this.config.disablemcMMOCompatiblity) {
+      if (!Objects.equals(e.getClass(), BlockBreakEvent.class)) {
+        return;
+      }
+    }
     if (!e.isCancelled()) {
       if (this.ignoreList.contains(e)) {
         return;
@@ -322,6 +304,11 @@ public class Main extends JavaPlugin implements Listener
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
   public void onBlockDestroy(final BlockBreakEvent e)
   {
+    if (!this.config.disablemcMMOCompatiblity) {
+      if (!Objects.equals(e.getClass(), BlockBreakEvent.class)) {
+        return;
+      }
+    }
     /*
      * try { if (this.ignoreList2.contains(e)) { return; } } finally {
      * this.ignoreList2.clear(); }
